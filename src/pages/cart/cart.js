@@ -3,9 +3,10 @@ import { PRODUCTS } from "../../products";
 import { ShopContext } from "../../context/shop-context";
 import { CartItem } from "./cart-item";
 import { Link } from "react-router-dom";
+import "./cart.css"
 
 export const Cart = () => {
-    const { cartItems, getTotalCartAmount } = useContext(ShopContext);
+    const { cartItems, getTotalCartAmount, clearCart } = useContext(ShopContext);
     const totalAmount = getTotalCartAmount();
 
     const hasItems = PRODUCTS.some((product) => cartItems[product.id] > 0);
@@ -13,6 +14,7 @@ export const Cart = () => {
     const handleCheckout = () => {
         if (hasItems) {
             alert("Thank you for your purchase! Order placed successfully.");
+            clearCart();
         }
     };
 
@@ -56,4 +58,4 @@ export const Cart = () => {
             </div>
         </div>
     );
-}         
+}

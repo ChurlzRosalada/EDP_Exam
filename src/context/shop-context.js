@@ -12,7 +12,15 @@ const getDefaultCart = () => {
 };
 
 export const ShopContextProvider = (props) => {
-    const [cartItems, setCartItems] = useState(getDefaultCart()); 
+    const [cartItems, setCartItems] = useState(() => {
+        const savedCart = localStorage.getItem("cart");
+        return savedCart ? JSON.parse(savedCart) : getDefaultCart();
+    }); 
+
+    const saveCart = (newCart) => {
+        setCartItems(newCart);
+        localStorage.setItem("cart", JSON.stringify(newCart));
+    };
 
     const getTotalCartAmount = () => {
         let totalAmount = 0;
@@ -26,23 +34,27 @@ export const ShopContextProvider = (props) => {
     };  
 
     const addToCart = (itemId) => {
-        setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] + 1 }));
+        const newCart = { ...cartItems, [itemId]: cartItems[itemId] + 1 };
+        saveCart(newCart);
     };
 
     const removeFromCart = (itemId) => {
-        setCartItems((prev) => {
-            let newAmount = prev[itemId] - 1;
-            if (newAmount < 0) newAmount = 0;
-            return { ...prev, [itemId]: newAmount };
-        });
+        const newAmount = cartItems[itemId] - 1 < 0 ? 0 : cartItems[itemId] - 1;
+        const newCart = { ...cartItems, [itemId]: newAmount };
+        saveCart(newCart);
     };
 
     const updateCartItemCount = (newAmount, itemId) => {
         if (newAmount < 0) newAmount = 0;
-        setCartItems((prev) => ({ ...prev, [itemId]: newAmount }));
-    }
+        const newCart = { ...cartItems, [itemId]: newAmount };
+        saveCart(newCart);
+    };
 
-    const contextValue = { cartItems, addToCart, removeFromCart, updateCartItemCount, getTotalCartAmount };
+    const clearCart = () => {
+        saveCart(getDefaultCart());
+    };
+
+    const contextValue = { cartItems, addToCart, removeFromCart, updateCartItemCount, getTotalCartAmount, clearCart };
 
     return (
         <ShopContext.Provider value={contextValue}>
